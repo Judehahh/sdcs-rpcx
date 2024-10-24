@@ -1,0 +1,45 @@
+version: "3"
+services:
+  server1:
+    build: .
+    ports:
+      - 9527:8080
+    deploy:
+      restart_policy:
+        condition: on-failure
+    networks:
+      server:
+        ipv4_address: 192.168.32.2
+    command: ["./sdcs", "192.168.32.3", "192.168.32.4"]
+
+  server2:
+    build: .
+    ports:
+      - 9528:8080
+    deploy:
+      restart_policy:
+        condition: on-failure
+    networks:
+      server:
+        ipv4_address: 192.168.32.3
+    command: ["./sdcs", "192.168.32.2", "192.168.32.4"]
+
+  server3:
+    build: .
+    ports:
+      - 9529:8080
+    deploy:
+      restart_policy:
+        condition: on-failure
+    networks:
+      server:
+        ipv4_address: 192.168.32.4
+    command: ["./sdcs", "192.168.32.2", "192.168.32.3"]
+
+networks:
+  server:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.32.0/24
+          gateway: 192.168.32.1

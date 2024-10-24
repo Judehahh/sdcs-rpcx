@@ -43,17 +43,17 @@ func (c *Cache) Delete(ctx context.Context, k Key, f *Flag) error {
 	return nil
 }
 
-func (c *Cache) Query(ctx context.Context, key Key, f *Flag) error {
-	if _, ok := c.cache[key.Key]; !ok {
-		f.Flag = false
-	} else {
+func (c *Cache) Query(ctx context.Context, p Pair, f *Flag) error {
+	if value, ok := c.cache[p.Key]; ok && value != p.Value {
 		f.Flag = true
+	} else {
+		f.Flag = false
 	}
 	return nil
 }
 
 func StartXServer(port int) {
-	addr := fmt.Sprintf("localhost:%d", port)
+	addr := fmt.Sprintf("0.0.0.0:%d", port)
 	s := server.NewServer()
 	s.Register(NewCache(), "")
 	go func() {
@@ -61,5 +61,5 @@ func StartXServer(port int) {
 			fmt.Printf("Error starting server: %v\n", err)
 		}
 	}()
-	fmt.Printf("XServer is running on http://localhost:%d\n", port)
+	fmt.Printf("XServer is running on http://0.0.0.0:%d\n", port)
 }
