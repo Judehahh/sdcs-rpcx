@@ -4,9 +4,17 @@ FROM ubuntu:20.04
 COPY . .
 
 RUN apt-get update && apt-get install -y wget
-RUN wget -P /tmp http://ftp.cn.debian.org/debian/pool/main/g/golang-1.23/golang-1.23-go_1.23.2-1_amd64.deb \
-    && wget -P /tmp http://ftp.cn.debian.org/debian/pool/main/g/golang-1.23/golang-1.23-src_1.23.2-1_all.deb
-RUN dpkg -i /tmp/golang-1.23-go_1.23.2-1_amd64.deb /tmp/golang-1.23-src_1.23.2-1_all.deb
+RUN ARCH=$(dpkg --print-architecture) && \
+    if [ "$ARCH" = "amd64" ]; then \
+        wget -P /tmp http://ftp.cn.debian.org/debian/pool/main/g/golang-1.23/golang-1.23-go_1.23.2-1_amd64.deb && \
+        wget -P /tmp http://ftp.cn.debian.org/debian/pool/main/g/golang-1.23/golang-1.23-src_1.23.2-1_all.deb; \
+    elif [ "$ARCH" = "arm64" ]; then \
+        wget -P /tmp http://ftp.cn.debian.org/debian/pool/main/g/golang-1.23/golang-1.23-go_1.23.2-1_arm64.deb && \
+        wget -P /tmp http://ftp.cn.debian.org/debian/pool/main/g/golang-1.23/golang-1.23-src_1.23.2-1_all.deb; \
+    else \
+        echo "Unsupported architecture: $ARCH" && exit 1; \
+    fi
+RUN dpkg -i /tmp/golang-1.23-go_*.deb /tmp/golang-1.23-src_*.deb
 
 ENV PATH="/usr/lib/go-1.23/bin:${PATH}"
 
